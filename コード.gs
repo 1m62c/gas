@@ -95,5 +95,3 @@ function research() {
 
   statusJudge(researchYear, researchMonth);
 }
-
-test
