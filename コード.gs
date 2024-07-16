@@ -3,12 +3,20 @@ var ss = SpreadsheetApp.getActiveSpreadsheet();
 var sh = ss.getSheetByName('シート1');
 var lastRow = sh.getLastRow();
 
+// 団員情報取得
+var allMemberColomn = sh.getRange(1, 1, lastRow);
+var allMember = allMemberColomn.getValues();
+
+// ステータス情報取得
+var allStatusColomn = sh.getRange(1, 6, lastRow);
+var allStatus = allStatusColomn.getValues();
+
+// api情報取得
+var apiToken = PropertiesService.getScriptProperties().getProperty('apiToken');
+var bandKey = PropertiesService.getScriptProperties().getProperty('bandKey');
+
 
 function statusJudge(compareYear, compareMonth) {
-  // // シート情報取得
-  // var ss = SpreadsheetApp.getActiveSpreadsheet();
-  // var sh = ss.getSheetByName('シート2');
-  // var lastRow = sh.getLastRow();
 
   // 休団年月日を配列に
   var breakDatesColumn = sh.getRange(1, 3, lastRow);
@@ -94,4 +102,60 @@ function research() {
   var researchMonth = researchDate.getMonth() + 1;
 
   statusJudge(researchYear, researchMonth);
+}
+
+
+function getBand() {
+  // band情報取得
+  var payload = 
+  {
+    'access_token' : apiToken
+  };
+
+  var options =
+  {
+    'method' : 'get',
+    'payload' : payload
+  };
+
+  var getBandRes = UrlFetchApp.fetch('https://openapi.band.us/v2.1/bands', options);
+  Logger.log(getBandRes);
+  var getBandName = getBandRes.result_data.bands[0].band_key;
+  Logger.log(getBandName)
+}
+
+
+function writePost(message) {
+  // 投稿
+
+  var payload = 
+  {
+    'access_token' : apiToken,
+    'band_key' : bandKey,
+    'content' : message,
+    'do_push' : true
+  };
+
+  var options =
+  {
+    'method' : 'post',
+    'payload' : payload
+  };
+
+  var writePostRes = UrlFetchApp.fetch('https://openapi.band.us/v2.2/band/post/create', options);
+  Logger.log(writePostRes);
+}
+
+function breakMemberCheck() {
+  var breakMember = [];
+
+  for (var i = 0; i < allMember.length; i++) {
+    if (allStatus[i][0] == '休団中') {
+      breakMember.push(allMember[i][0]);
+    }
+  }
+
+  var breakMemberNotify = '【今月の休団者】' + breakMember;
+  Logger.log(breakMemberNotify);
+  // writePost(breakMemberNotify);
 }
