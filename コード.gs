@@ -3,13 +3,34 @@ var ss = SpreadsheetApp.getActiveSpreadsheet();
 var sh = ss.getSheetByName('シート1');
 var lastRow = sh.getLastRow();
 
-// 団員情報取得
-var allMemberColomn = sh.getRange(1, 1, lastRow);
-var allMember = allMemberColomn.getValues();
+// 全ての情報取得
+var allDataColomn = sh.getRange(1, 1, lastRow, 6);
+var allData = allDataColomn.getValues();
 
-// ステータス情報取得
-var allStatusColomn = sh.getRange(1, 6, lastRow);
-var allStatus = allStatusColomn.getValues();
+// aaaa/bb/cc型に変換した全ての情報取得
+var convertedAllData = fromDateToString(allData);
+
+
+function fromDateToString(data) {
+  for (var i = 0; i < data.length; i++) {
+    for (var j = 2; j <= 3; j++) {
+      var year = data[i][j].getFullYear();
+      var month = data[i][j].getMonth() + 1;
+      var day = data[i][j].getDate();
+      data[i][j] = `${year}/${month}/${day}`;
+    }
+  }
+  return data;
+}
+
+
+// // 団員情報取得
+// var allMemberColomn = sh.getRange(1, 1, lastRow);
+// var allMember = allMemberColomn.getValues();
+
+// // ステータス情報取得
+// var allStatusColomn = sh.getRange(1, 6, lastRow);
+// var allStatus = allStatusColomn.getValues();
 
 // api情報取得
 var apiToken = PropertiesService.getScriptProperties().getProperty('apiToken');
@@ -146,16 +167,31 @@ function writePost(message) {
   Logger.log(writePostRes);
 }
 
-function breakMemberCheck() {
-  var breakMember = [];
 
-  for (var i = 0; i < allMember.length; i++) {
-    if (allStatus[i][0] == '休団中') {
-      breakMember.push(allMember[i][0]);
-    }
-  }
+// function breakMemberCheck() {
+//   var breakMemberData = [];
 
-  var breakMemberNotify = '【今月の休団者】' + breakMember;
-  Logger.log(breakMemberNotify);
-  // writePost(breakMemberNotify);
-}
+//   for (var i = 0; i < allData.length; i++) {
+//     if (allData[i][5] == '休団中') {
+//       breakMemberData.push(`${allData[i][0]}, ${allData[i][1]} (${allData[i][3]}) `);
+//     }
+//   }
+
+//   Logger.log(breakMemberData);
+// }
+
+
+
+// function breakMemberCheck() {
+//   var breakMember = [];
+
+//   for (var i = 0; i < allMember.length; i++) {
+//     if (allStatus[i][0] == '休団中') {
+//       breakMember.push(allMember[i][0]);
+//     }
+//   }
+
+//   var breakMemberNotify = `【今月の休団者（復団予定日）】${breakMember}`;
+//   Logger.log(breakMemberNotify);
+//   writePost(breakMemberNotify);
+// }
