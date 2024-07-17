@@ -1,6 +1,6 @@
 // シート情報取得
 var ss = SpreadsheetApp.getActiveSpreadsheet();
-var sh = ss.getSheetByName('シート1');
+var sh = ss.getSheetByName('団員名簿');
 var lastRow = sh.getLastRow();
 
 // api情報取得
